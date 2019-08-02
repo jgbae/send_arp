@@ -118,12 +118,12 @@ void SetARPPacket(ARP_Packet *packet, uint16_t opcode, AddressInfo *addressinfo)
     switch(opcode)
     {
     case ARP_REQUEST:
-        memcpy(packet->eth_src, addressinfo->senderMac, MAC_ADDR_LEN);
+        memcpy(packet->eth_src, addressinfo->hostMac, MAC_ADDR_LEN);
         memset(packet->eth_dst, 0xff, MAC_ADDR_LEN);
-        memcpy(packet->srcMACAddr, addressinfo->senderMac, MAC_ADDR_LEN);
-        memcpy(packet->srcProtocolAddr, &addressinfo->senderIp, IP_ADDR_LEN);
+        memcpy(packet->srcMACAddr, addressinfo->hostMac, MAC_ADDR_LEN);
+        memcpy(packet->srcProtocolAddr, &addressinfo->targetIp, IP_ADDR_LEN);
         memset(packet->dstMACAddr, 0x00, MAC_ADDR_LEN);
-        memcpy(packet->dstProtocolAddr, &addressinfo->targetIp, IP_ADDR_LEN);
+        memcpy(packet->dstProtocolAddr, &addressinfo->senderIp, IP_ADDR_LEN);
         break;
     case ARP_REPLY:
         memcpy(packet->eth_src, addressinfo->hostMac, MAC_ADDR_LEN);
