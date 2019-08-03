@@ -10,6 +10,8 @@ int main(int argc, char *argv[])
      */
     AddressInfo addressInfo;
     addressInfo.interface = argv[1];
+    addressInfo.senderIp = inet_addr(argv[2]);
+    addressInfo.targetIp = inet_addr(argv[3]);
 
     if(argc != 4)
     {
@@ -18,7 +20,7 @@ int main(int argc, char *argv[])
     }
 
     // 1. Get Sender's MAC Address
-    if (!GetSvrMacAddress(argv[1], addressInfo.hostMac))
+    if (!GetSvrMacAddress(&addressInfo))
     {
         printf("[-]Failed to get %s's MAC address..\n", argv[1]);
         return 0;
@@ -26,8 +28,6 @@ int main(int argc, char *argv[])
     print_mac(argv[1], addressInfo.hostMac);
 
     // 2. Get Target's MAC Address
-    addressInfo.senderIp = inet_addr(argv[2]);
-    addressInfo.targetIp = inet_addr(argv[3]);
     if (!GetTargetMacAddress(&addressInfo))
     {
         printf("[-]Failed to get Sender's MAC address..\n");

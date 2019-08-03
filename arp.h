@@ -42,11 +42,12 @@ typedef struct AddressInfo
     uint32_t senderIp;
     uint32_t targetIp;
     uint8_t senderMac[6];
+    uint32_t hostIP;
     uint8_t hostMac[6];
 } AddressInfo;
 
 void usage();
-int GetSvrMacAddress(char *interface, uint8_t *macAddr);
+int GetSvrMacAddress(AddressInfo *addressinfo);
 void print_mac(const char *msg, uint8_t* mac);
 int GetTargetMacAddress(AddressInfo *addressinfo);
 void SetARPPacket(ARP_Packet *packet, uint16_t opcode, AddressInfo *addressinfo);

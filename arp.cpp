@@ -12,11 +12,12 @@ void print_mac(const char *msg, uint8_t* mac)
     printf("MAC : %02X:%02X:%02X:%02X:%02X:%02X\n",mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
 
-int GetSvrMacAddress(char *interface, uint8_t *macAddr)
+int GetSvrMacAddress(AddressInfo *addressinfo)
 {
     int nSD; // Socket descriptor
     struct ifreq *ifr; // Interface request
     struct ifconf ifc;
+    char ipstr[40];
     int i, numif;
 
     memset(&ifc, 0, sizeof(ifc));
@@ -41,16 +42,17 @@ int GetSvrMacAddress(char *interface, uint8_t *macAddr)
         {
             struct ifreq *r = &ifr[i];
             struct sockaddr_in *sin = reinterpret_cast<struct sockaddr_in *>(&r->ifr_addr);
-            if (!strcmp(r->ifr_name, interface))
+            if (!strcmp(r->ifr_name, addressinfo->interface))
             {
+                inet_ntop(AF_INET, r->ifr_addr.sa_data+2, ipstr,sizeof(struct sockaddr));
+                addressinfo->hostIP = inet_addr(ipstr);
                 if(ioctl(nSD, SIOCGIFHWADDR, r) < 0)
                 {
                     if(nSD) close(nSD);
                     if(ifr) free(ifr);
                     return 0;
                 }
-
-                memcpy(macAddr, r->ifr_hwaddr.sa_data, 6);
+                memcpy(addressinfo->hostMac, r->ifr_hwaddr.sa_data, 6);
                 if(nSD) close(nSD);
                 if(ifr) free(ifr);
                 return 1;
@@ -121,7 +123,7 @@ void SetARPPacket(ARP_Packet *packet, uint16_t opcode, AddressInfo *addressinfo)
         memcpy(packet->eth_src, addressinfo->hostMac, MAC_ADDR_LEN);
         memset(packet->eth_dst, 0xff, MAC_ADDR_LEN);
         memcpy(packet->srcMACAddr, addressinfo->hostMac, MAC_ADDR_LEN);
-        memcpy(packet->srcProtocolAddr, &addressinfo->targetIp, IP_ADDR_LEN);
+        memcpy(packet->srcProtocolAddr, &addressinfo->hostIP, IP_ADDR_LEN);
         memset(packet->dstMACAddr, 0x00, MAC_ADDR_LEN);
         memcpy(packet->dstProtocolAddr, &addressinfo->senderIp, IP_ADDR_LEN);
         break;
